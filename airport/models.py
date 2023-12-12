@@ -1,11 +1,17 @@
+import os
+import uuid
 from datetime import date
-
 from django.conf import settings
 from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 from django.db import models
+from django.utils.text import slugify
 
-from django.utils.translation import gettext_lazy as _
+
+def airplane_image_file_path(instance, filename):
+    _, extension = os.path.splitext(filename)
+    filename = f"{slugify(instance.name)}-{uuid.uuid4()}.{extension}"
+    return os.path.join("uploads/airplanes//", filename)
 
 
 class Crew(models.Model):
@@ -70,6 +76,7 @@ class Airplane(models.Model):
     rows = models.IntegerField()
     seats_in_row = models.IntegerField()
     airplane_type = models.ForeignKey(AirplaneType, on_delete=models.CASCADE)
+    image = models.ImageField(null=True, upload_to=airplane_image_file_path)
 
     @property
     def capacity(self) -> int:
