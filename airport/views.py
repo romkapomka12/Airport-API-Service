@@ -1,6 +1,12 @@
 from datetime import datetime
+
 from django.db.models import Count, F
-from rest_framework import viewsets
+from rest_framework import viewsets, status
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.decorators import action
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
+from rest_framework.response import Response
+
 from airport.models import (
     Airplane,
     Crew,
@@ -11,6 +17,7 @@ from airport.models import (
     Route,
     AirplaneType
 )
+from airport.permissions import IsAdminOrIfAuthenticatedReadOnly
 from airport.serializers import (
     AirplaneSerializer,
     CrewSerializer,
@@ -24,26 +31,50 @@ from airport.serializers import (
     FlightDetailSerializer,
     RouteListSerializer,
     AirplaneDetailSerializer,
-    OrderListSerializer
+    OrderListSerializer, AirplaneImageSerializer
 )
 
 
 class AirplaneViewSet(viewsets.ModelViewSet):
     queryset = Airplane.objects.all().select_related("airplane_type")
     serializer_class = AirplaneSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAdminUser,)
 
     def get_serializer_class(self):
+        if self.action == "upload_image":
+            return AirplaneImageSerializer
+
         return AirplaneDetailSerializer
+
+    @action(methods=["POST"],
+            detail=True,
+            url_path="upload-image",
+            permission_classes=[IsAdminUser]
+            )
+    def upload_image(self, request, pk=None):
+        """ Endpoint for uploading to specific airplane"""
+        airplane = self.get_object()
+        serializer = self.get_serializer(airplane, data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AirportViewSet(viewsets.ModelViewSet):
     queryset = Airport.objects.all()
     serializer_class = AirportSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class FlightViewSet(viewsets.ModelViewSet):
     queryset = Flight.objects.all().select_related("route", "airplane").prefetch_related("crew")
     serializer_class = FlightSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     @staticmethod
     def _params_to_ints(qs):
@@ -83,13 +114,13 @@ class FlightViewSet(viewsets.ModelViewSet):
                     "crew"
                 )
             ).annotate(
-                    tickets_available=(
-                            F("airplane__rows")
-                            * F("airplane__seats_in_row")
-                            - Count("tickets")
+                tickets_available=(
+                        F("airplane__rows")
+                        * F("airplane__seats_in_row")
+                        - Count("tickets")
 
-                    )
-                ).order_by("id")
+                )
+            ).order_by("id")
         return queryset.distinct()
 
     def get_serializer_class(self):
@@ -102,14 +133,20 @@ class FlightViewSet(viewsets.ModelViewSet):
         return FlightSerializer
 
 
+
+
 class TicketViewSet(viewsets.ModelViewSet):
     queryset = Ticket.objects.all().select_related("flight", "order")
     serializer_class = TicketSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
 
 class OrderViewSet(viewsets.ModelViewSet):
     queryset = Order.objects.all().select_related("user")
     serializer_class = OrderSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -125,7 +162,6 @@ class OrderViewSet(viewsets.ModelViewSet):
                 "tickets__flight__airplane"
             )
 
-
         return queryset
 
     def perform_create(self, serializer):
@@ -135,6 +171,8 @@ class OrderViewSet(viewsets.ModelViewSet):
 class RouteViewSet(viewsets.ModelViewSet):
     queryset = Route.objects.all().select_related("source", "destination")
     serializer_class = RouteSerializer
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
     def get_serializer_class(self):
         if self.action == "list":
@@ -149,8 +187,15 @@ class RouteViewSet(viewsets.ModelViewSet):
 class AirplaneTypeViewSet(viewsets.ModelViewSet):
     queryset = AirplaneType.objects.all()
     serializer_class = AirplaneTypeSerializer
+    authentication_classes = (TokenAuthentication,)
+    # permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+    permission_classes = (IsAdminUser,)
 
 
 class CrewViewSet(viewsets.ModelViewSet):
     queryset = Crew.objects.all()
     serializer_class = CrewSerializer
+    authentication_classes = (TokenAuthentication,)
+    # permission_classes = (IsAdminUserAuthenticated,)
+    # permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
+    permission_classes = (IsAdminUser,)
