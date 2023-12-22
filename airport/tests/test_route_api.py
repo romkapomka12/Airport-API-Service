@@ -113,7 +113,8 @@ class AdminFlightApiTests(TestCase):
         self.assertEqual(route.distance, 1900)
 
     def test_create_route_with_same_source_and_destination(self):
-        """Test creating a route with the same source and destination raises a ValidationError"""
+        """Test creating a route with the same source and destination
+        raises a ValidationError"""
 
         payload = {
             "source": self.airport1.id,

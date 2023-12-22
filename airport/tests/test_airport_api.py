@@ -10,7 +10,11 @@ AIRPORT_URL = reverse("airport:airport-list")
 
 
 def sample_airport(**params):
-    defaults = {"name": "Geneva", "airport_code": "GVA", "closest_big_city": "Geneva"}
+    defaults = {
+        "name": "Geneva",
+        "airport_code": "GVA",
+        "closest_big_city": "Geneva"
+    }
     defaults.update(params)
     return Airport.objects.create(**defaults)
 
@@ -89,4 +93,7 @@ class AdminAirportApiTests(TestCase):
         url = detail_url(airport.id)
         response = self.client.delete(url)
 
-        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
+        self.assertEqual(
+            response.status_code,
+            status.HTTP_405_METHOD_NOT_ALLOWED
+        )
