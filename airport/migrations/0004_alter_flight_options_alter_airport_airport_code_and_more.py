@@ -4,48 +4,50 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('airport', '0003_alter_route_options'),
+        ("airport", "0003_alter_route_options"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='flight',
+            name="flight",
             options={},
         ),
         migrations.AlterField(
-            model_name='airport',
-            name='airport_code',
+            model_name="airport",
+            name="airport_code",
             field=models.CharField(max_length=10, unique=True),
         ),
         migrations.AlterField(
-            model_name='crew',
-            name='first_name',
+            model_name="crew",
+            name="first_name",
             field=models.CharField(max_length=30, unique=True),
         ),
         migrations.AlterField(
-            model_name='crew',
-            name='last_name',
+            model_name="crew",
+            name="last_name",
             field=models.CharField(max_length=30, unique=True),
         ),
         migrations.AlterField(
-            model_name='flight',
-            name='arrival_time',
+            model_name="flight",
+            name="arrival_time",
             field=models.DateTimeField(),
         ),
         migrations.AlterField(
-            model_name='flight',
-            name='departure_time',
+            model_name="flight",
+            name="departure_time",
             field=models.DateTimeField(),
         ),
         migrations.AlterField(
-            model_name='order',
-            name='created_at',
+            model_name="order",
+            name="created_at",
             field=models.DateTimeField(),
         ),
         migrations.AddIndex(
-            model_name='flight',
-            index=models.Index(fields=['departure_time', 'arrival_time'], name='airport_fli_departu_848826_idx'),
+            model_name="flight",
+            index=models.Index(
+                fields=["departure_time", "arrival_time"],
+                name="airport_fli_departu_848826_idx",
+            ),
         ),
     ]

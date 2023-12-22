@@ -38,7 +38,6 @@ class AuthenticatedRouteApiTests(TestCase):
         self.client.force_authenticate(self.user)
 
     def test_filter_route_by_source(self):
-
         """Test filtering routes by source"""
 
         airport1 = Airport.objects.create(
@@ -58,7 +57,6 @@ class AuthenticatedRouteApiTests(TestCase):
         self.assertNotIn(serializer2.data, res.data)
 
     def test_filter_route_by_destination(self):
-
         """Test filtering routes by destination"""
 
         airport1 = Airport.objects.create(
@@ -115,7 +113,6 @@ class AdminFlightApiTests(TestCase):
         self.assertEqual(route.distance, 1900)
 
     def test_create_route_with_same_source_and_destination(self):
-
         """Test creating a route with the same source and destination raises a ValidationError"""
 
         payload = {

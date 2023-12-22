@@ -4,14 +4,13 @@ from django.db import migrations
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('airport', '0002_initial'),
+        ("airport", "0002_initial"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='route',
-            options={'ordering': ['source']},
+            name="route",
+            options={"ordering": ["source"]},
         ),
     ]

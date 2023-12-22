@@ -17,6 +17,10 @@ def sample_airplane_type(**params):
     return AirplaneType.objects.create(**defaults)
 
 
+def detail_url(airplane_type_id):
+    return reverse("airport:airplanetype-detail", args=[airplane_type_id])
+
+
 class UnauthenticatedMovieApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -35,9 +39,16 @@ class AuthenticatedAirplaneTypeApiTests(TestCase):
         )
         self.client.force_authenticate(user=self.user)
 
-    def test_list_airplane_type_forbidden(self):
+    def test_list_airplane_type(self):
+        sample_airplane_type()
+
         res = self.client.get(AIRPLANE_TYPE_URL)
-        self.assertEqual(res.status_code, status.HTTP_403_FORBIDDEN)
+
+        airport_types = AirplaneType.objects.all()
+        serializer = AirplaneTypeSerializer(airport_types, many=True)
+
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertEqual(res.data, serializer.data)
 
 
 class AdminAirplaneTypeApiTests(TestCase):
@@ -48,13 +59,30 @@ class AdminAirplaneTypeApiTests(TestCase):
         )
         self.client.force_authenticate(self.admin_user)
 
-    def test_airplane_type(self):
+    def test_airplane_type_list(self):
         sample_airplane_type()
 
         res = self.client.get(AIRPLANE_TYPE_URL)
 
-        crew = AirplaneType.objects.all()
-        serializer = AirplaneTypeSerializer(crew, many=True)
+        airplane_type = AirplaneType.objects.all()
+        serializer = AirplaneTypeSerializer(airplane_type, many=True)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
+
+    def test_create_airplane_type(self):
+        sample_airplane_type()
+
+        payload = {"name": "Large Jets"}
+        response = self.client.post(AIRPLANE_TYPE_URL, payload)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["name"], payload["name"])
+
+    def test_delete_airplane_type_not_allowed(self):
+        airplane_type = AirplaneType.objects.create(name="Private Jets")
+
+        url = detail_url(airplane_type.id)
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)

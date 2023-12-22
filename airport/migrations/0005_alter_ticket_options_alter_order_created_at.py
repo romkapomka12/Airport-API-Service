@@ -4,19 +4,18 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('airport', '0004_alter_flight_options_alter_airport_airport_code_and_more'),
+        ("airport", "0004_alter_flight_options_alter_airport_airport_code_and_more"),
     ]
 
     operations = [
         migrations.AlterModelOptions(
-            name='ticket',
-            options={'ordering': ['row']},
+            name="ticket",
+            options={"ordering": ["row"]},
         ),
         migrations.AlterField(
-            model_name='order',
-            name='created_at',
+            model_name="order",
+            name="created_at",
             field=models.DateTimeField(auto_now_add=True),
         ),
     ]

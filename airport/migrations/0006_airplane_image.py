@@ -5,15 +5,16 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('airport', '0005_alter_ticket_options_alter_order_created_at'),
+        ("airport", "0005_alter_ticket_options_alter_order_created_at"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='airplane',
-            name='image',
-            field=models.ImageField(null=True, upload_to=airport.models.airplane_image_file_path),
+            model_name="airplane",
+            name="image",
+            field=models.ImageField(
+                null=True, upload_to=airport.models.airplane_image_file_path
+            ),
         ),
     ]

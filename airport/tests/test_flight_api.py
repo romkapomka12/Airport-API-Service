@@ -11,6 +11,7 @@ from airport.serializers import FlightListSerializer, FlightDetailSerializer
 
 FLIGHT_URL = reverse("airport:flight-list")
 
+
 def detail_url(flight_id: int):
     return reverse("airport:flight-detail", args=[flight_id])
 
@@ -152,7 +153,7 @@ class AuthenticatedFlightApiTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         self.assertEqual(response.data, serializer.data)
 
-    def test_create_airplane_forbidden(self):
+    def test_create_flight_forbidden(self):
         Airport1 = Airport.objects.create(
             name="Aberdeen", airport_code="ABZ", closest_big_city="Aberdeen"
         )
@@ -169,14 +170,18 @@ class AuthenticatedFlightApiTests(TestCase):
             seats_in_row=2,
             airplane_type=airplane_type,
         )
+        crew_1 = Crew.objects.create(first_name="Crew1", last_name="Member1")
+        crew_2 = Crew.objects.create(first_name="Crew2", last_name="Member2")
         payload = {
             "route": route.pk,
             "airplane": airplane.pk,
             "departure_time": "2023-12-17 10:07:09",
             "arrival_time": "2023-12-17 16:00:00",
+            "crew": [crew_1.pk, crew_2.pk],
         }
 
         response = self.client.post(FLIGHT_URL, payload)
+        print(response.data)
         self.assertEqual(response.status_code, status.HTTP_403_FORBIDDEN)
 
 
@@ -259,8 +264,7 @@ class AdminFlightApiTests(TestCase):
         self.assertEqual(response.status_code, status.HTTP_201_CREATED)
         self.assertEqual(flight1.crew.count(), 2)
 
-    def test_delete_light_not_allowed(self):
-
+    def test_delete_flight_not_allowed(self):
         flight1 = sample_flight1()
         url = detail_url(flight1.id)
         response = self.client.delete(url)

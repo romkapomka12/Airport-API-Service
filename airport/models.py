@@ -1,9 +1,7 @@
 import os
 import uuid
-from datetime import date
 from django.conf import settings
 from django.core.exceptions import ValidationError
-from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.text import slugify
 
@@ -27,9 +25,9 @@ class Crew(models.Model):
 
     def save(self, *args, **kwargs):
         if (
-            Crew.objects.exclude(pk=self.pk)
-            .filter(first_name=self.first_name, last_name=self.last_name)
-            .exists()
+                Crew.objects.exclude(pk=self.pk)
+                        .filter(first_name=self.first_name, last_name=self.last_name)
+                        .exists()
         ):
             raise ValidationError("Crew with this full name already exists.")
         super().save(*args, **kwargs)
@@ -79,17 +77,6 @@ class Route(models.Model):
             )
 
 
-class Order(models.Model):
-    created_at = models.DateTimeField(auto_now_add=True)
-    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-
-    def __str__(self):
-        return str(self.created_at)
-
-    class Meta:
-        ordering = ["-created_at"]
-
-
 class Airplane(models.Model):
     name = models.CharField(max_length=100)
     rows = models.IntegerField()
@@ -108,6 +95,17 @@ class Airplane(models.Model):
         ordering = ["name"]
 
 
+class Order(models.Model):
+    created_at = models.DateTimeField(auto_now_add=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+
+    def __str__(self):
+        return str(self.created_at)
+
+    class Meta:
+        ordering = ["-created_at"]
+
+
 class Flight(models.Model):
     route = models.ForeignKey(Route, on_delete=models.CASCADE)
     airplane = models.ForeignKey(Airplane, on_delete=models.CASCADE)
@@ -119,9 +117,6 @@ class Flight(models.Model):
         indexes = [models.Index(fields=["departure_time", "arrival_time"])]
 
     def __str__(self):
-        # departure_time = self.departure_time.strftime("%H:%M (%d.%m.%Y)")
-        # arrival_time = self.arrival_time.strftime("%H:%M (%d.%m.%Y)")
-
         departure_time = self.departure_time.strftime("%Y-%m-%d  %H:%M")
         arrival_time = self.arrival_time.strftime("%Y-%m-%d  %H:%M")
         return str(
@@ -153,9 +148,9 @@ class Ticket(models.Model):
                 raise error_to_raise(
                     {
                         ticket_attr_name: f"{ticket_attr_name} "
-                        f"number must be in available range: "
-                        f"(1, {airplane_attr_name}): "
-                        f"(1, {count_attrs})"
+                                          f"number must be in available range: "
+                                          f"(1, {airplane_attr_name}): "
+                                          f"(1, {count_attrs})"
                     }
                 )
 
@@ -168,7 +163,7 @@ class Ticket(models.Model):
         )
 
     def save(
-        self, force_insert=False, force_update=False, using=None, update_fields=None
+            self, force_insert=False, force_update=False, using=None, update_fields=None
     ):
         self.full_clean()
         super(Ticket, self).save(force_insert, force_update, using, update_fields)

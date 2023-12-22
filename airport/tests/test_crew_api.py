@@ -55,3 +55,13 @@ class AdminCrewApiTests(TestCase):
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
+
+    def test_create_crew(self):
+        sample_crew()
+
+        payload = {"first_name": "Victory", "last_name": "Brent"}
+        response = self.client.post(CREW_URL, payload)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["first_name"], payload["first_name"])
+        self.assertEqual(response.data["last_name"], payload["last_name"])

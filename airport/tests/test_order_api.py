@@ -153,7 +153,6 @@ class AuthenticatedOrderApiTests(TestCase):
         )
 
     def test_list_order(self):
-
         order1 = Order.objects.create(user=self.user)
         order2 = Order.objects.create(user=self.user)
 
@@ -171,7 +170,6 @@ class AuthenticatedOrderApiTests(TestCase):
         self.assertEqual(res.data, serializer.data)
 
     def test_create_order(self):
-
         """Test creating a new order"""
 
         payload = {
@@ -188,7 +186,6 @@ class AuthenticatedOrderApiTests(TestCase):
         self.assertEqual(order.user, self.user)
 
     def test_retrieve_orders(self):
-
         """Test retrieving orders"""
 
         order1 = Order.objects.create(user=self.user)
@@ -206,7 +203,6 @@ class AuthenticatedOrderApiTests(TestCase):
         self.assertEqual(res.data, serializer.data)
 
     def test_orders_limited_to_user(self):
-
         """Test that orders returned are for the authenticated user"""
 
         user2 = get_user_model().objects.create_user(
@@ -223,7 +219,6 @@ class AuthenticatedOrderApiTests(TestCase):
         self.assertEqual(res.data[0]["id"], order.id)
 
     def test_create_order_with_invalid_tickets(self):
-
         """Test ticket validation"""
 
         payload = {
@@ -239,7 +234,6 @@ class AuthenticatedOrderApiTests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
 
     def test_create_order_with_duplicate_tickets(self):
-
         """Test creating a new order with duplicate tickets"""
 
         order = Order.objects.create(user=self.user)

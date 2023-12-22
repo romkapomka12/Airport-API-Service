@@ -1,13 +1,15 @@
 from django.contrib import admin
 from .forms import FlightForm
-from airport.models import (Flight,
-                            Crew,
-                            Airport,
-                            AirplaneType,
-                            Route,
-                            Order,
-                            Ticket,
-                            Airplane)
+from airport.models import (
+    Flight,
+    Crew,
+    Airport,
+    AirplaneType,
+    Route,
+    Order,
+    Ticket,
+    Airplane,
+)
 
 
 class FlightAdmin(admin.ModelAdmin):
@@ -30,5 +32,4 @@ admin.site.register(Crew)
 admin.site.register(Airport)
 admin.site.register(AirplaneType)
 admin.site.register(Route)
-
 admin.site.register(Ticket)

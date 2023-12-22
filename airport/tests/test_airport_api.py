@@ -15,6 +15,10 @@ def sample_airport(**params):
     return Airport.objects.create(**defaults)
 
 
+def detail_url(airport_id):
+    return reverse("airport:airport-detail", args=[airport_id])
+
+
 class UnauthenticatedMovieApiTests(TestCase):
     def setUp(self):
         self.client = APIClient()
@@ -38,8 +42,8 @@ class AuthenticatedFlightApiTests(TestCase):
 
         res = self.client.get(AIRPORT_URL)
 
-        flights = Airport.objects.all()
-        serializer = AirportSerializer(flights, many=True)
+        airports = Airport.objects.all()
+        serializer = AirportSerializer(airports, many=True)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
@@ -58,8 +62,31 @@ class AdminAirportApiTests(TestCase):
 
         res = self.client.get(AIRPORT_URL)
 
-        crew = Airport.objects.all()
-        serializer = AirportSerializer(crew, many=True)
+        airport = Airport.objects.all()
+        serializer = AirportSerializer(airport, many=True)
 
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(res.data, serializer.data)
+
+    def test_create_airport(self):
+        sample_airport()
+
+        payload = {
+            "name": "Kinshasa",
+            "airport_code": "KSH",
+            "closest_big_city": "Kinshasa",
+        }
+
+        response = self.client.post(AIRPORT_URL, payload)
+
+        self.assertEqual(response.status_code, status.HTTP_201_CREATED)
+        self.assertEqual(response.data["name"], payload["name"])
+
+    def test_delete_airport_not_allowed(self):
+        airport = Airport.objects.create(
+            name="Kongo", airport_code="KNG", closest_big_city="Kongo"
+        )
+        url = detail_url(airport.id)
+        response = self.client.delete(url)
+
+        self.assertEqual(response.status_code, status.HTTP_405_METHOD_NOT_ALLOWED)
