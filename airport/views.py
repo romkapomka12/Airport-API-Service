@@ -84,7 +84,6 @@ class AirportViewSet(
     viewsets.GenericViewSet,
 ):
     queryset = Airport.objects.all()
-    # queryset = Airport.objects.filter(id__in=airport_ids)
     serializer_class = AirportSerializer
     permission_classes = (IsAdminOrIfAuthenticatedReadOnly,)
 
